@@ -26,7 +26,8 @@ add_time_c <- time_min_c + (10*60)
 data_c <- cluster_c_data[cluster_c_data$Timestamp >= time_min & cluster_c_data$Timestamp <= add_time,]
 data_c <- data_c %>% arrange(desc(Packet_Length))
 
-
+cluster_a_data <- cluster_a_data %>% arrange(desc(Packet_Length))
+cluster_c_data <- cluster_c_data %>% arrange(desc(Packet_Length))
 # draw the cdf plot
 plot(ecdf(data$Packet_Length), col="red", lwd=3.0,
      xlab="Packet Size (bytes)",
@@ -35,20 +36,18 @@ plot(ecdf(data$Packet_Length), col="red", lwd=3.0,
 lines(ecdf(data_c$Packet_Length), col="cyan", lwd=3.0)
 legend('bottomright', 
        legend=c("Database","Hadoop"),  # text in the legend
-       col=c("red","purple"),  # point colors
+       col=c("red","cyan"),  # point colors
        pch=15)
 
-# draw the cdf plot
-plot(ecdf(cluster_a_data$Timestamp), col="red", lwd=3.0,
-     xlab="Packet Size (bytes)",
-     main="",
-     ylab="CDF",)
-lines(ecdf(cluster_c_data$Timestamp), col="cyan", lwd=3.0)
-legend('bottomright', 
-       legend=c("Database","Hadoop"),  # text in the legend
-       col=c("red","purple"),  # point colors
-       pch=15)
+df_merge <- merge(data, data_c, by="Source_IP")
 
-index_90 <- 0.1*(nrow(data))
-data_90 <- data[1:index_90,]
-data_c_90 <- data_c[1:index_90,]
+index_90 <- 0.1*(nrow(cluster_a_data))
+data_90 <- cluster_a_data[1:index_90,]
+data_c_90 <- cluster_c_data[1:index_90,]
+
+# data[data$Source_IP == data$Destination_IP,]
+x<-data_90%>%
+  group_by(Destination_IP)%>%
+  count(Source_IP)
+x <- x %>% arrange(desc(n))
+x
